@@ -18,7 +18,7 @@ app.use(cors());
 
 // APP - GET
 app.get("/", (req, res) => {
-  res.send("Hello")
+  res.json({message : "Hello from QuizNest Backend"})
 })
 
 // JWT - GET
