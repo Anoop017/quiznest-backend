@@ -14,7 +14,10 @@ const app = express();
 
 app.use(express.json())
 app.use("/api/auth", authRoutes);
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "https://quiznest.netlify.app"],
+  credentials: true,
+}));
 
 // APP - GET
 app.get("/", (req, res) => {
