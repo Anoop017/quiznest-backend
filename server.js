@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json())
 app.use("/api/auth", authRoutes);
 app.use(cors({
-  origin: ["http://localhost:5173", "https://quiznest.netlify.app"],
+  origin: ["http://localhost:5173", "https://quiz-nest-site.netlify.app/"],
   credentials: true,
 }));
 
