@@ -7,7 +7,7 @@ import authMiddleware from "./middleware/authMiddleware.js"
 import Quiz from "./models/Quiz.js"
 import cors from "cors"
 import Country from "./models/Country.js"
-
+import aiRouter from "./routes/ai.js"
 
 dotenv.config()
 
@@ -24,6 +24,7 @@ app.use(cors({
 app.use(express.json())
 app.use("/api/auth", auth)
 app.use("/api/quiz", quiz)
+app.use("/api/ai", aiRouter);
 
 // APP - GET
 app.get("/", (req, res) => {

@@ -1,5 +1,5 @@
 {
-  "type":"module",
+  "type": "module",
   "name": "quiznest-backend",
   "version": "1.0.0",
   "description": "quiznest-backend in express",
@@ -12,6 +12,7 @@
   "author": "Anoop",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.25.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
@@ -20,6 +21,5 @@
     "mongoose": "^8.18.2",
     "nodemon": "^3.1.10"
   },
-  "devDependencies": {},
   "keywords": []
 }
