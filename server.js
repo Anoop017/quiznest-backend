@@ -13,14 +13,14 @@ dotenv.config()
 
 const app = express()
 
-// Apply CORS middleware BEFORE other middleware and routes
+// CORS configuration
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://quiz-nest-site.netlify.app"
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -34,12 +34,15 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+};
 
-// Handle preflight requests
-app.options('*', cors());
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
+// Parse JSON
 app.use(express.json())
+
+// Routes
 app.use("/api/auth", auth)
 app.use("/api/quiz", quiz)
 app.use("/api/ai", aiRouter);
