@@ -55,6 +55,8 @@ router.get('/stats', auth, async (req, res) => {
         totalAttempts: 1,
         averageScore: { $round: ['$averageScore', 1] },
         highestScore: 1,
+        totalCorrectAnswers: 1,
+        totalQuestions: 1,
         accuracy: {
           $round: [
             { $multiply: [
