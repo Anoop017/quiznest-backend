@@ -7,14 +7,15 @@ const router = express.Router();
 // Save a quiz attempt
 router.post('/attempts', auth, async (req, res) => {
   try {
-    const { quizType, score, totalQuestions, correctAnswers } = req.body;
+    const { quizType, score, totalQuestions, correctAnswers, timeSpent } = req.body;
     
     const attempt = new QuizAttempt({
       user: req.user.id,
       quizType,
       score,
       totalQuestions,
-      correctAnswers
+      correctAnswers,
+      timeSpent: timeSpent || 0
     });
 
     await attempt.save();
@@ -48,7 +49,16 @@ router.get('/stats', auth, async (req, res) => {
         averageScore: { $avg: '$score' },
         highestScore: { $max: '$score' },
         totalCorrectAnswers: { $sum: '$correctAnswers' },
-        totalQuestions: { $sum: '$totalQuestions' }
+        totalQuestions: { $sum: '$totalQuestions' },
+        totalTimeSpent: { $sum: '$timeSpent' },
+        recentAttempts: { 
+          $push: {
+            score: '$score',
+            correctAnswers: '$correctAnswers',
+            totalQuestions: '$totalQuestions',
+            date: '$date'
+          }
+        }
       }},
       { $project: {
         quizType: '$_id',
@@ -57,6 +67,8 @@ router.get('/stats', auth, async (req, res) => {
         highestScore: 1,
         totalCorrectAnswers: 1,
         totalQuestions: 1,
+        totalTimeSpent: 1,
+        recentAttempts: { $slice: ['$recentAttempts', -5] },
         accuracy: {
           $round: [
             { $multiply: [
