@@ -14,12 +14,30 @@ dotenv.config()
 const app = express()
 
 // Apply CORS middleware BEFORE other middleware and routes
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://quiz-nest-site.netlify.app"
+];
+
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:3000", "https://quiz-nest-site.netlify.app"],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}))
+}));
+
+// Handle preflight requests
+app.options('*', cors());
 
 app.use(express.json())
 app.use("/api/auth", auth)
@@ -42,18 +60,42 @@ app.get("/api/countries", async(req, res) => {
     const countries = await Country.find().sort({name: 1})
     res.json({countries})
   } catch(error) {
+    console.error("Countries fetch error:", error);
     res.status(500).json({message: "Failed to Fetch Countries", error: error.message})
   }
 })
+
 // For Uptime Monitoring
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ 
+    message: 'Internal Server Error', 
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
+
 // MONGOOSE - CONNECT
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error("MongoDB Connection Error", err))
+  .catch(err => {
+    console.error("MongoDB Connection Error", err);
+    process.exit(1);
+  });
+
+// Handle MongoDB connection errors after initial connection
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
 
 // Start server
 const PORT = process.env.PORT || 5000
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
